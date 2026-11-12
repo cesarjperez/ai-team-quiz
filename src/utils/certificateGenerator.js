@@ -122,7 +122,7 @@ export function renderCredentialCanvas(canvas, state) {
   ctx.fillText(state.profile.role || 'Software Engineer', 216, 230);
 
   const rankInfo = getRankInfo(state.xp);
-  roundRect(ctx, 216, 244, 340, 34, 17);
+  roundRect(ctx, 216, 244, 350, 34, 17);
   ctx.fillStyle = 'rgba(56, 189, 248, 0.14)';
   ctx.fill();
   ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
@@ -130,8 +130,37 @@ export function renderCredentialCanvas(canvas, state) {
   ctx.stroke();
 
   ctx.fillStyle = '#67e8f9';
-  ctx.font = '700 15px "Plus Jakarta Sans", sans-serif';
+  ctx.font = '700 14px "Plus Jakarta Sans", sans-serif';
   ctx.fillText(`${rankInfo.current.badge}  RANGO: ${rankInfo.current.title.toUpperCase()}`, 232, 266);
+
+  // Sello de Integridad Antitrampa
+  const focusLosses = state.totalFocusLosses || 0;
+  const hasPlayed = (state.totalAnswered || 0) > 0;
+  const isClean = focusLosses === 0 && hasPlayed;
+
+  roundRect(ctx, 580, 244, 410, 34, 17);
+  ctx.fillStyle = !hasPlayed
+    ? 'rgba(148, 163, 184, 0.12)'
+    : isClean
+    ? 'rgba(16, 185, 129, 0.16)'
+    : 'rgba(245, 158, 11, 0.16)';
+  ctx.fill();
+  ctx.strokeStyle = !hasPlayed
+    ? 'rgba(148, 163, 184, 0.3)'
+    : isClean
+    ? 'rgba(52, 211, 153, 0.45)'
+    : 'rgba(251, 191, 36, 0.45)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.fillStyle = !hasPlayed ? '#cbd5e1' : isClean ? '#6ee7b7' : '#fcd34d';
+  ctx.font = '700 13px "JetBrains Mono", monospace';
+  const integrityLabel = !hasPlayed
+    ? '🛡️ MONITOREO ANTITRAMPA ACTIVO (15s/PREG)'
+    : isClean
+    ? '🛡️ INTEGRIDAD VERIFICADA • 0 SALIDAS DE PESTAÑA'
+    : `⚠️ ${focusLosses} SALIDA(S) DE VENTANA DETECTADA(S)`;
+  ctx.fillText(integrityLabel, 598, 266);
 
   // 4 Tarjetas KPI
   const accuracy =
@@ -237,11 +266,20 @@ export function buildShareText(state) {
     return s > 0 ? `N${l.level}:${'⭐'.repeat(s)}` : `N${l.level}:🔒`;
   }).join(' | ');
 
+  const focusLosses = state.totalFocusLosses || 0;
+  const integrityText =
+    (state.totalAnswered || 0) === 0
+      ? '🛡️ *Integridad:* Monitoreo activo (15s/preg)'
+      : focusLosses === 0
+      ? '🛡️ *Integridad:* Verificada (0 salidas de pestaña)'
+      : `⚠️ *Integridad:* ${focusLosses} salida(s) de pestaña detectada(s)`;
+
   return [
     `🚀 *AI Nexus Quiz — Reporte de Dominio IA*`,
     `👤 *Jugador:* ${name} (${state.profile.role})`,
     `${rankInfo.current.badge} *Rango:* ${rankInfo.current.title} — *${state.xp.toLocaleString()} XP*`,
     `🎯 *Precisión:* ${accuracy}%  |  🔥 *Mejor Racha:* ${state.bestStreak}  |  🏅 *Medallas:* ${state.unlockedAchievements.length}/10`,
+    integrityText,
     `📊 *Módulos (${clearedCount}/5):* ${levelBadges}`,
     `🔗 ¡Pon a prueba tus conocimientos con el equipo!`,
   ].join('\n');

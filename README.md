@@ -16,12 +16,15 @@ Plataforma web moderna, interactiva y gamificada construida con **React + Vite +
   - **⚔️ Arena Global Mixta:** Reto especial de 10 preguntas combinando todos los módulos.
   - Tanto el orden de las preguntas como el de las opciones cambian automáticamente en cada partida.
 - **💡 Explicación Técnica Instantánea + Repaso Final:** Cada respuesta muestra al instante el *porqué* técnico y al terminar el nivel puedes filtrar entre **Todas** las preguntas o **Solo Errores**.
-- **🏆 Gamificación Completa:**
-  - Puntos **XP**, **6 Rangos Evolutivos**, **Rachas en vivo (`🔥`)**, **Estrellas por nivel (`⭐⭐⭐`)**, **10 Medallas Desbloqueables**, celebraciones con **confeti** y sintetizador de audio futurista Web Audio API (con botón de silencio).
-  - **Modo Estándar** (sin límite de tiempo) y **Modo Contrarreloj ⚡** (20s por pregunta con multiplicador `x1.5 XP`).
-- **🪪 Perfil Persistente y Credencial Descargable:**
+- **🏆 Gamificación Completa + Escudo Antitrampa:**
+  - **Tiempo obligatorio de 15s por pregunta** (sin opción de pausar ni quitar el reloj).
+  - **Detector de cambio de pestaña / ventana:** advierte en la 1ª salida y **anula automáticamente la pregunta activa** si vuelve a salir.
+  - **Bloqueo anticopiado:** selección de texto, clic derecho y atajos `Ctrl+C` deshabilitados durante el cuestionario.
+  - **Modo Pantalla Completa en Nivel 5:** el nivel final exige pantalla completa activa para responder.
+  - Puntos **XP**, **6 Rangos Evolutivos**, **Rachas en vivo (`🔥`)**, **Estrellas (`⭐⭐⭐`)**, **10 Medallas Desbloqueables**, celebraciones con **confeti** y sintetizador de audio Web Audio API.
+- **🪪 Perfil Persistente y Credencial con Sello de Integridad:**
   - Progreso guardado automáticamente en `localStorage`.
-  - Generador integrado de **Credencial Técnica en PNG HD** (renderizada en HTML5 Canvas) y botón para copiar resumen formateado para **Slack / Microsoft Teams / WhatsApp**.
+  - Generador integrado de **Credencial Técnica en PNG HD** con **Sello de Integridad Verificada** (mostrando `0 salidas de pestaña` o el número exacto de salidas registradas) y botón para copiar resumen formateado para **Slack / Microsoft Teams / WhatsApp**.
 
 ---
 

@@ -8,7 +8,6 @@ import {
   Lock,
   Play,
   Timer,
-  Infinity as InfinityIcon,
   Star,
   Zap,
   Trophy,
@@ -16,6 +15,8 @@ import {
   Swords,
   UserPlus,
   CheckCircle2,
+  ShieldCheck,
+  Maximize2,
 } from 'lucide-react';
 import { QUIZ_LEVELS } from '../data/quizData';
 import { getRankInfo } from '../utils/storage';
@@ -30,8 +31,6 @@ const ICON_MAP = {
 
 export default function DashboardView({
   state,
-  gameMode,
-  setGameMode,
   questionCount,
   setQuestionCount,
   onStartLevel,
@@ -64,7 +63,7 @@ export default function DashboardView({
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/25 text-cyan-300 text-xs font-mono-tech font-semibold mb-3">
               <Zap className="w-3.5 h-3.5" />
-              <span>40 RETOS TÉCNICOS • 5 DOMINIOS CLAVE DE IA</span>
+              <span>40 RETOS TÉCNICOS • EVALUACIÓN CONTRARRELOJ PROTEGIDA</span>
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-display font-bold text-white leading-tight">
@@ -149,64 +148,38 @@ export default function DashboardView({
                 Ver Credencial
               </p>
               <p className="text-[11px] text-cyan-200/80 mt-0.5">
-                PNG / Resumen →
+                Sello Integridad →
               </p>
             </button>
           </div>
         </div>
       </section>
 
-      {/* Game Mode & Session Controls */}
+      {/* Anti-Cheat & Session Controls */}
       <section className="glass-panel rounded-2xl p-4 sm:px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-sm font-bold text-white flex items-center gap-2">
-            <span>Configuración de Misión</span>
-            {gameMode === 'timed' && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono-tech bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                BONO XP x1.5 ACTIVO
-              </span>
-            )}
-          </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Las preguntas y opciones cambian de orden automáticamente en cada intento.
+        <div className="space-y-1.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Escudo Antitrampa Activo
+            </span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono-tech font-semibold bg-amber-500/15 text-amber-300 border border-amber-400/30">
+              <Timer className="w-3.5 h-3.5" />
+              15s obligatorios / pregunta
+            </span>
+          </div>
+          <p className="text-xs text-slate-400">
+            Bloqueo de copiado activo y monitoreo de ventana: salir de la pestaña advierte la 1ª vez y anula la pregunta si se repite.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          {/* Mode Switcher */}
-          <div className="inline-flex p-1 rounded-xl bg-slate-950/90 border border-white/10">
-            <button
-              type="button"
-              onClick={() => setGameMode('standard')}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                gameMode === 'standard'
-                  ? 'bg-cyan-400 text-slate-950 shadow-sm'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              <InfinityIcon className="w-3.5 h-3.5" />
-              Estándar
-            </button>
-            <button
-              type="button"
-              onClick={() => setGameMode('timed')}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                gameMode === 'timed'
-                  ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 shadow-sm'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              <Timer className="w-3.5 h-3.5" />
-              Contrarreloj (20s)
-            </button>
-          </div>
-
+        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
           {/* Length Switcher */}
           <div className="inline-flex p-1 rounded-xl bg-slate-950/90 border border-white/10">
             <button
               type="button"
               onClick={() => setQuestionCount(5)}
-              className={`px-3 py-2 rounded-lg text-xs font-mono-tech font-semibold transition cursor-pointer ${
+              className={`px-3.5 py-2 rounded-lg text-xs font-mono-tech font-semibold transition cursor-pointer ${
                 questionCount === 5
                   ? 'bg-violet-500 text-white'
                   : 'text-slate-400 hover:text-white'
@@ -217,7 +190,7 @@ export default function DashboardView({
             <button
               type="button"
               onClick={() => setQuestionCount(8)}
-              className={`px-3 py-2 rounded-lg text-xs font-mono-tech font-semibold transition cursor-pointer ${
+              className={`px-3.5 py-2 rounded-lg text-xs font-mono-tech font-semibold transition cursor-pointer ${
                 questionCount === 8
                   ? 'bg-violet-500 text-white'
                   : 'text-slate-400 hover:text-white'
@@ -243,6 +216,7 @@ export default function DashboardView({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {QUIZ_LEVELS.map((lvl, idx) => {
             const isLocked = idx >= state.unlockedLevels;
+            const isFinalBossLevel = idx === QUIZ_LEVELS.length - 1;
             const prog = state.levelsProgress[lvl.id];
             const stars = prog?.stars || 0;
             const bestPct = prog?.bestPct || 0;
@@ -258,7 +232,6 @@ export default function DashboardView({
                     : `glass-card ${lvl.borderGlow} hover:-translate-y-1`
                 }`}
               >
-                {/* Top subtle gradient */}
                 {!isLocked && (
                   <div
                     className={`absolute inset-x-0 top-0 h-28 bg-gradient-to-b ${lvl.gradient} pointer-events-none`}
@@ -267,19 +240,31 @@ export default function DashboardView({
 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between gap-2 mb-4">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono-tech font-semibold border ${lvl.badgeBg}`}
-                    >
-                      <IconComponent className="w-3.5 h-3.5" />
-                      Nivel {lvl.level}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono-tech font-semibold border ${lvl.badgeBg}`}
+                      >
+                        <IconComponent className="w-3.5 h-3.5" />
+                        Nivel {lvl.level}
+                      </span>
+
+                      {isFinalBossLevel && (
+                        <span
+                          title="Este nivel final activa Pantalla Completa obligatoria"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono-tech font-semibold bg-rose-500/20 text-rose-200 border border-rose-400/35"
+                        >
+                          <Maximize2 className="w-3 h-3" />
+                          Pantalla Completa
+                        </span>
+                      )}
+                    </div>
 
                     {isLocked ? (
-                      <span className="inline-flex items-center gap-1 text-xs text-slate-500 font-medium">
+                      <span className="inline-flex items-center gap-1 text-xs text-slate-500 font-medium shrink-0">
                         <Lock className="w-3.5 h-3.5" /> Bloqueado
                       </span>
                     ) : (
-                      <div className="flex items-center gap-1" title={`${stars} de 3 estrellas`}>
+                      <div className="flex items-center gap-1 shrink-0" title={`${stars} de 3 estrellas`}>
                         {[1, 2, 3].map((s) => (
                           <Star
                             key={s}
@@ -309,17 +294,12 @@ export default function DashboardView({
                       <span className="text-emerald-400 font-semibold flex items-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         Mejor: {bestPct}%
-                        {prog?.timedCleared && (
-                          <span title="Superado en modo Contrarreloj" className="text-amber-300 ml-1">
-                            ⚡
-                          </span>
-                        )}
                       </span>
                     ) : isLocked ? (
                       <span className="text-slate-500">Supera el Nivel {lvl.level - 1}</span>
                     ) : (
                       <span className="text-slate-400 font-mono-tech">
-                        {lvl.questions.length} preguntas en banco
+                        15s/preg • {lvl.questions.length} en banco
                       </span>
                     )}
                   </div>
@@ -365,13 +345,13 @@ export default function DashboardView({
                 Arena Global Mixta (10 Pregs)
               </h3>
               <p className="text-xs sm:text-sm text-slate-300/85 leading-relaxed mb-5">
-                Diagnóstico integral combinando preguntas aleatorias de los 5 niveles para medir tu dominio global frente al equipo.
+                Diagnóstico integral contrarreloj (15s/preg) combinando preguntas aleatorias de los 5 niveles para medir tu dominio global.
               </p>
             </div>
 
             <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
               <span className="text-xs text-fuchsia-300 font-mono-tech font-semibold">
-                +Bono XP Especial
+                15s/preg • +Bono XP
               </span>
               <button
                 type="button"

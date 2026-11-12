@@ -70,6 +70,11 @@ class SoundEngine {
     this.playTone(170, 'sawtooth', 0.22, 0.18, 0.07);
   }
 
+  warning() {
+    this.playTone(440, 'sawtooth', 0.11, 0, 0.09);
+    this.playTone(310, 'sawtooth', 0.16, 0.12, 0.09);
+  }
+
   tick() {
     this.playTone(880, 'sine', 0.04, 0, 0.04);
   }

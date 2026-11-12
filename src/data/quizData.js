@@ -58,8 +58,8 @@ export const ACHIEVEMENTS = [
   },
   {
     id: 'speed_runner',
-    title: 'Dominio Contrarreloj',
-    description: 'Supera cualquier nivel en Modo Contrarreloj.',
+    title: 'Reflejos Neurales',
+    description: 'Supera cualquier nivel respondiendo en promedio en 7 segundos o menos y sin salir de pestaña.',
     icon: '⏱️',
     xpBonus: 180,
   },

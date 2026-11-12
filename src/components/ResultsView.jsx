@@ -13,6 +13,8 @@ import {
   Zap,
   BookOpen,
   Unlock,
+  ShieldCheck,
+  ShieldAlert,
 } from 'lucide-react';
 import { sound } from '../utils/sound';
 
@@ -37,6 +39,7 @@ export default function ResultsView({
     totalEarnedXP,
     maxSessionStreak,
     avgTimeSec,
+    sessionFocusLosses = 0,
     newlyUnlockedLevelNumber,
     newlyUnlockedMedals,
   } = result;
@@ -70,9 +73,23 @@ export default function ResultsView({
         <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-cyan-500/15 blur-3xl pointer-events-none" />
 
         <div className="relative z-10">
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-mono-tech font-semibold bg-slate-900/80 border border-white/10 text-cyan-300 mb-3">
-            {sessionTitle}
-          </span>
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-mono-tech font-semibold bg-slate-900/80 border border-white/10 text-cyan-300">
+              {sessionTitle}
+            </span>
+
+            {sessionFocusLosses === 0 ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono-tech font-semibold bg-emerald-500/15 border border-emerald-400/35 text-emerald-300">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Integridad Verificada (0 salidas)
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono-tech font-semibold bg-amber-500/15 border border-amber-400/35 text-amber-300">
+                <ShieldAlert className="w-3.5 h-3.5" />
+                {sessionFocusLosses} salida{sessionFocusLosses > 1 ? 's' : ''} de pestaña
+              </span>
+            )}
+          </div>
 
           <h2 className="text-2xl sm:text-4xl font-display font-bold text-white mb-2">
             {pct === 100
@@ -84,7 +101,7 @@ export default function ResultsView({
 
           <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto mb-6">
             {pct === 100
-              ? 'Impecable. Dominas cada concepto técnico de este módulo.'
+              ? 'Impecable. Dominas cada concepto técnico de este módulo bajo presión de tiempo.'
               : passed
               ? 'Has demostrado una base sólida. Revisa las explicaciones abajo para alcanzar el 100%.'
               : 'Necesitas al menos 60% de aciertos para aprobar el nivel. Revisa el desglose técnico inferior.'}
@@ -315,9 +332,13 @@ export default function ResultsView({
                       <>
                         <CheckCircle2 className="w-4 h-4" /> Correcta ({item.timeSpentSec}s)
                       </>
+                    ) : item.focusDisqualified ? (
+                      <>
+                        <ShieldAlert className="w-4 h-4" /> Anulada (salida de pestaña)
+                      </>
                     ) : item.timedOut ? (
                       <>
-                        <XCircle className="w-4 h-4" /> Tiempo agotado
+                        <XCircle className="w-4 h-4" /> Tiempo agotado (15s)
                       </>
                     ) : (
                       <>

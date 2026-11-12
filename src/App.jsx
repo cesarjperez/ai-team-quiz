@@ -19,10 +19,15 @@ import {
 } from './utils/storage';
 import { sound } from './utils/sound';
 
+function exitFullscreenSafely() {
+  if (typeof document !== 'undefined' && document.fullscreenElement) {
+    document.exitFullscreen?.().catch(() => {});
+  }
+}
+
 export default function App() {
   const [state, setState] = useState(() => loadState());
   const [view, setView] = useState('dashboard'); // 'dashboard' | 'quiz' | 'results'
-  const [gameMode, setGameMode] = useState('standard'); // 'standard' | 'timed'
   const [questionCount, setQuestionCount] = useState(5); // 5 | 8
 
   // Active session
@@ -77,6 +82,7 @@ export default function App() {
   };
 
   const handleResetProgress = () => {
+    exitFullscreenSafely();
     clearStoredState();
     const fresh = getDefaultState();
     setState(fresh);
@@ -90,13 +96,20 @@ export default function App() {
     if (!levelObj) return;
     sound.click();
 
+    const isFinalLevel = levelIndex === QUIZ_LEVELS.length - 1;
+    if (isFinalLevel && typeof document !== 'undefined') {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      exitFullscreenSafely();
+    }
+
     const preparedQuestions = buildQuizQuestions(levelObj.questions, questionCount);
     setActiveSession({
       isArena: false,
       levelIndex,
       levelId: levelObj.id,
       title: levelObj.title,
-      isTimedMode: gameMode === 'timed',
+      requireFullscreen: isFinalLevel,
       questions: preparedQuestions,
     });
     setView('quiz');
@@ -105,6 +118,8 @@ export default function App() {
 
   const startArena = () => {
     sound.click();
+    exitFullscreenSafely();
+
     const allPool = QUIZ_LEVELS.flatMap((lvl) => lvl.questions);
     const preparedQuestions = buildQuizQuestions(allPool, 10);
 
@@ -113,14 +128,20 @@ export default function App() {
       levelIndex: null,
       levelId: 'arena-global',
       title: 'Arena Global Mixta • 5 Dominios IA',
-      isTimedMode: gameMode === 'timed',
+      requireFullscreen: false,
       questions: preparedQuestions,
     });
     setView('quiz');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleCompleteSession = ({ history, sessionXP, maxSessionStreak }) => {
+  const handleCompleteSession = ({
+    history,
+    sessionXP,
+    maxSessionStreak,
+    sessionFocusLosses = 0,
+  }) => {
+    exitFullscreenSafely();
     if (!activeSession) return;
 
     const totalCount = history.length;
@@ -154,7 +175,6 @@ export default function App() {
         bestPct: 0,
         stars: 0,
         attempts: 0,
-        timedCleared: false,
       };
 
       const nextLevelsProgress = activeSession.isArena
@@ -166,8 +186,6 @@ export default function App() {
               bestPct: Math.max(prevLevelProg.bestPct, pct),
               stars: Math.max(prevLevelProg.stars, stars),
               attempts: prevLevelProg.attempts + 1,
-              timedCleared:
-                prevLevelProg.timedCleared || (passed && activeSession.isTimedMode),
             },
           };
 
@@ -186,6 +204,7 @@ export default function App() {
         bestStreak: Math.max(prev.bestStreak, maxSessionStreak),
         totalAnswered: prev.totalAnswered + totalCount,
         totalCorrect: prev.totalCorrect + correctCount,
+        totalFocusLosses: (prev.totalFocusLosses || 0) + sessionFocusLosses,
         unlockedLevels: nextUnlockedLevels,
         levelsProgress: nextLevelsProgress,
         arenaProgress: nextArenaProgress,
@@ -197,7 +216,8 @@ export default function App() {
           passed,
           pct,
           maxSessionStreak,
-          isTimedMode: activeSession.isTimedMode,
+          avgTimeSec,
+          sessionFocusLosses,
           levelId: activeSession.levelId,
           isArena: activeSession.isArena,
         }
@@ -218,6 +238,7 @@ export default function App() {
         totalEarnedXP: finalEarnedXP,
         maxSessionStreak,
         avgTimeSec,
+        sessionFocusLosses,
         newlyUnlockedLevelNumber,
         newlyUnlockedMedals: newlyUnlocked,
       });
@@ -255,6 +276,7 @@ export default function App() {
           onOpenCertificate={() => setShowCertificateModal(true)}
           onToggleSound={handleToggleSound}
           onGoHome={() => {
+            exitFullscreenSafely();
             sound.click();
             setView('dashboard');
           }}
@@ -264,11 +286,6 @@ export default function App() {
           {view === 'dashboard' && (
             <DashboardView
               state={state}
-              gameMode={gameMode}
-              setGameMode={(m) => {
-                sound.click();
-                setGameMode(m);
-              }}
               questionCount={questionCount}
               setQuestionCount={(c) => {
                 sound.click();
@@ -286,9 +303,10 @@ export default function App() {
               key={`${activeSession.levelId}-${activeSession.questions[0]?.id}`}
               sessionTitle={activeSession.title}
               questions={activeSession.questions}
-              isTimedMode={activeSession.isTimedMode}
+              requireFullscreen={activeSession.requireFullscreen}
               bestStreakRecord={state.bestStreak}
               onCancel={() => {
+                exitFullscreenSafely();
                 sound.click();
                 setView('dashboard');
               }}
@@ -313,6 +331,7 @@ export default function App() {
               }
               onNextLevel={() => startLevel(lastResult.levelIndex + 1)}
               onReturnHome={() => {
+                exitFullscreenSafely();
                 sound.click();
                 setView('dashboard');
               }}
@@ -323,7 +342,7 @@ export default function App() {
 
         <footer className="mt-12 pt-6 border-t border-white/5 text-center text-xs text-slate-500">
           <p>
-            AI Nexus Quiz • Entrenamiento Técnico para Equipos •{' '}
+            AI Nexus Quiz • Entrenamiento Técnico Protegido para Equipos •{' '}
             <span className="font-mono-tech text-slate-400">
               LLMs · MCP · Skills · RAG · Agentes
             </span>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -9,15 +9,18 @@ import {
   Lightbulb,
   Zap,
   AlertCircle,
+  ShieldCheck,
+  ShieldAlert,
+  Maximize2,
 } from 'lucide-react';
 import { sound } from '../utils/sound';
 
-const QUESTION_TIME_LIMIT = 20;
+const QUESTION_TIME_LIMIT = 15;
 
 export default function QuizView({
   sessionTitle,
   questions,
-  isTimedMode,
+  requireFullscreen = false,
   onCancel,
   onCompleteSession,
   bestStreakRecord,
@@ -25,6 +28,7 @@ export default function QuizView({
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedIdx, setSelectedIdx] = useState(null);
   const [timedOut, setTimedOut] = useState(false);
+  const [focusDisqualified, setFocusDisqualified] = useState(false);
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME_LIMIT);
   const [streak, setStreak] = useState(0);
   const [maxSessionStreak, setMaxSessionStreak] = useState(0);
@@ -33,8 +37,20 @@ export default function QuizView({
   const [history, setHistory] = useState([]);
   const [questionStartMs, setQuestionStartMs] = useState(Date.now());
 
+  // Anti-cheat state
+  const [sessionFocusLosses, setSessionFocusLosses] = useState(0);
+  const [focusAlertMessage, setFocusAlertMessage] = useState(null);
+  const [isFullscreenActive, setIsFullscreenActive] = useState(() =>
+    typeof document !== 'undefined' ? Boolean(document.fullscreenElement) : true
+  );
+
+  // Refs to avoid duplicate blur/visibility events & handle initial fullscreen transition grace period
+  const isAwayRef = useRef(false);
+  const focusLossesRef = useRef(0);
+  const graceUntilRef = useRef(Date.now() + 1000);
+
   const currentQ = questions[currentIdx];
-  const isAnswered = selectedIdx !== null || timedOut;
+  const isAnswered = selectedIdx !== null || timedOut || focusDisqualified;
 
   // Reset timer when question changes
   useEffect(() => {
@@ -42,9 +58,34 @@ export default function QuizView({
     setQuestionStartMs(Date.now());
   }, [currentIdx]);
 
-  // Countdown logic in Timed Mode
+  // Monitor Fullscreen state (required on Level 5)
   useEffect(() => {
-    if (!isTimedMode || isAnswered) return;
+    if (!requireFullscreen) return;
+
+    const handleFsChange = () => {
+      setIsFullscreenActive(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, [requireFullscreen]);
+
+  const handleRequestFullscreen = async () => {
+    graceUntilRef.current = Date.now() + 900;
+    try {
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      }
+      setIsFullscreenActive(true);
+    } catch {
+      // Si el navegador o dispositivo móvil no soporta Fullscreen API, permitir continuar
+      setIsFullscreenActive(true);
+    }
+  };
+
+  // Mandatory 15s Countdown logic
+  useEffect(() => {
+    if (isAnswered) return;
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -62,7 +103,7 @@ export default function QuizView({
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isTimedMode, isAnswered, currentIdx]);
+  }, [isAnswered, currentIdx]);
 
   const handleTimeout = () => {
     setTimedOut(true);
@@ -70,7 +111,6 @@ export default function QuizView({
     setLastEarnedXP(0);
     sound.timeout();
 
-    const elapsedSec = QUESTION_TIME_LIMIT;
     setHistory((prev) => [
       ...prev,
       {
@@ -81,20 +121,104 @@ export default function QuizView({
         correctIndex: currentQ.correct,
         selectedIndex: null,
         timedOut: true,
+        focusDisqualified: false,
         isCorrect: false,
         explanation: currentQ.explanation,
-        timeSpentSec: elapsedSec,
+        timeSpentSec: QUESTION_TIME_LIMIT,
       },
     ]);
   };
 
+  const disqualifyCurrentQuestionForFocusLoss = useCallback(
+    (newCount) => {
+      const elapsedSec = Math.max(
+        1,
+        Math.min(QUESTION_TIME_LIMIT, Math.round((Date.now() - questionStartMs) / 1000))
+      );
+      setFocusDisqualified(true);
+      setStreak(0);
+      setLastEarnedXP(0);
+      sound.timeout();
+      setFocusAlertMessage(
+        `🚨 Salida de pestaña #${newCount} detectada: esta pregunta fue anulada automáticamente.`
+      );
+
+      setHistory((prev) => [
+        ...prev,
+        {
+          questionId: currentQ.id,
+          tag: currentQ.tag,
+          question: currentQ.question,
+          options: currentQ.options,
+          correctIndex: currentQ.correct,
+          selectedIndex: null,
+          timedOut: false,
+          focusDisqualified: true,
+          isCorrect: false,
+          explanation: currentQ.explanation,
+          timeSpentSec: elapsedSec,
+        },
+      ]);
+    },
+    [currentQ, questionStartMs]
+  );
+
+  // Tab switch / window blur detection while question is active
+  useEffect(() => {
+    const onLoseFocus = () => {
+      if (Date.now() < graceUntilRef.current) return;
+      if (isAwayRef.current) return;
+      isAwayRef.current = true;
+
+      if (isAnswered) return;
+
+      const nextCount = focusLossesRef.current + 1;
+      focusLossesRef.current = nextCount;
+      setSessionFocusLosses(nextCount);
+
+      if (nextCount === 1) {
+        sound.warning();
+        setFocusAlertMessage(
+          '⚠️ Advertencia de Integridad (1/2): Se detectó cambio de pestaña o ventana. Si vuelves a salir durante una pregunta activa, se anulará al instante.'
+        );
+      } else {
+        disqualifyCurrentQuestionForFocusLoss(nextCount);
+      }
+    };
+
+    const onRegainFocus = () => {
+      if (!document.hidden) {
+        isAwayRef.current = false;
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        onLoseFocus();
+      } else {
+        onRegainFocus();
+      }
+    };
+
+    window.addEventListener('blur', onLoseFocus);
+    window.addEventListener('focus', onRegainFocus);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      window.removeEventListener('blur', onLoseFocus);
+      window.removeEventListener('focus', onRegainFocus);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [disqualifyCurrentQuestionForFocusLoss, isAnswered]);
+
   const handleSelectOption = useCallback(
     (idx) => {
       if (isAnswered) return;
+      if (requireFullscreen && !isFullscreenActive) return;
 
       const elapsedSec = Math.max(
         1,
-        Math.round((Date.now() - questionStartMs) / 1000)
+        Math.min(QUESTION_TIME_LIMIT, Math.round((Date.now() - questionStartMs) / 1000))
       );
       const isCorrect = idx === currentQ.correct;
       setSelectedIdx(idx);
@@ -106,9 +230,8 @@ export default function QuizView({
         nextStreak = streak + 1;
         const baseXP = 100;
         const streakBonus = Math.min(nextStreak - 1, 5) * 20;
-        const speedBonus = isTimedMode ? Math.max(10, timeLeft * 3) : 0;
-        const modeMultiplier = isTimedMode ? 1.5 : 1;
-        earned = Math.round((baseXP + streakBonus + speedBonus) * modeMultiplier);
+        const speedBonus = Math.max(10, timeLeft * 4);
+        earned = Math.round(baseXP + streakBonus + speedBonus);
 
         setStreak(nextStreak);
         setMaxSessionStreak((prevMax) => Math.max(prevMax, nextStreak));
@@ -131,13 +254,22 @@ export default function QuizView({
           correctIndex: currentQ.correct,
           selectedIndex: idx,
           timedOut: false,
+          focusDisqualified: false,
           isCorrect,
           explanation: currentQ.explanation,
           timeSpentSec: elapsedSec,
         },
       ]);
     },
-    [currentQ, isAnswered, isTimedMode, questionStartMs, streak, timeLeft]
+    [
+      currentQ,
+      isAnswered,
+      isFullscreenActive,
+      questionStartMs,
+      requireFullscreen,
+      streak,
+      timeLeft,
+    ]
   );
 
   const handleNext = useCallback(() => {
@@ -148,11 +280,13 @@ export default function QuizView({
       setCurrentIdx((i) => i + 1);
       setSelectedIdx(null);
       setTimedOut(false);
+      setFocusDisqualified(false);
     } else {
       onCompleteSession({
         history,
         sessionXP,
         maxSessionStreak: Math.max(maxSessionStreak, streak),
+        sessionFocusLosses: focusLossesRef.current,
         bestStreakBefore: bestStreakRecord,
       });
     }
@@ -168,9 +302,15 @@ export default function QuizView({
     streak,
   ]);
 
-  // Keyboard shortcuts: 1-4 to pick option, Enter/Space for Next
+  // Keyboard shortcuts + Anti-copy shortcut blocker
   useEffect(() => {
     const onKeyDown = (e) => {
+      // Block Ctrl+C / Cmd+C / Ctrl+U / Ctrl+S / Ctrl+A inside quiz
+      if ((e.ctrlKey || e.metaKey) && ['c', 'x', 'u', 's', 'a', 'p'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+        return;
+      }
+
       if (['1', '2', '3', '4'].includes(e.key) && !isAnswered) {
         const idx = Number(e.key) - 1;
         if (idx < currentQ.options.length) {
@@ -190,8 +330,16 @@ export default function QuizView({
     ((currentIdx + (isAnswered ? 1 : 0)) / questions.length) * 100
   );
 
+  const timerPct = Math.round((timeLeft / QUESTION_TIME_LIMIT) * 100);
+
   return (
-    <div className="w-full max-w-3xl mx-auto animate-fade-up">
+    <div
+      onContextMenu={(e) => e.preventDefault()}
+      onCopy={(e) => e.preventDefault()}
+      onCut={(e) => e.preventDefault()}
+      onDragStart={(e) => e.preventDefault()}
+      className="w-full max-w-3xl mx-auto animate-fade-up select-none"
+    >
       {/* Top HUD Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <button
@@ -200,10 +348,34 @@ export default function QuizView({
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          Mapa de Niveles
+          Salir
         </button>
 
-        <div className="flex items-center gap-2.5 ml-auto">
+        <div className="flex flex-wrap items-center gap-2 ml-auto">
+          {/* Integrity Status Pill */}
+          <div
+            title="Monitoreo de cambio de pestaña y bloqueo de copiado activos"
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono-tech font-bold ${
+              sessionFocusLosses === 0
+                ? 'bg-emerald-500/15 border-emerald-400/35 text-emerald-300'
+                : sessionFocusLosses === 1
+                ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
+                : 'bg-rose-500/20 border-rose-400/50 text-rose-200'
+            }`}
+          >
+            {sessionFocusLosses === 0 ? (
+              <>
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Integridad</span> 100%
+              </>
+            ) : (
+              <>
+                <ShieldAlert className="w-3.5 h-3.5" />
+                <span>{sessionFocusLosses} Salida{sessionFocusLosses > 1 ? 's' : ''}</span>
+              </>
+            )}
+          </div>
+
           {/* Streak Indicator */}
           <div
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono-tech font-bold transition-all ${
@@ -217,7 +389,7 @@ export default function QuizView({
                 streak >= 2 ? 'text-amber-400 fill-amber-400' : 'text-slate-500'
               }`}
             />
-            <span>Racha x{streak}</span>
+            <span>x{streak}</span>
           </div>
 
           {/* Session XP */}
@@ -226,26 +398,79 @@ export default function QuizView({
             <span>+{sessionXP} XP</span>
           </div>
 
-          {/* Countdown Timer */}
-          {isTimedMode && (
-            <div
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono-tech font-bold transition ${
-                timeLeft <= 5
-                  ? 'bg-rose-500/25 border-rose-400 text-rose-200 animate-pulse'
-                  : timeLeft <= 10
-                  ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
-                  : 'bg-slate-900/85 border-white/15 text-slate-200'
-              }`}
-            >
-              <Timer className="w-3.5 h-3.5" />
-              <span>{timeLeft}s</span>
-            </div>
-          )}
+          {/* Mandatory 15s Countdown Pill */}
+          <div
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-mono-tech font-bold transition ${
+              timeLeft <= 4
+                ? 'bg-rose-500/30 border-rose-400 text-rose-100 animate-pulse'
+                : timeLeft <= 8
+                ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
+                : 'bg-slate-900/85 border-cyan-400/30 text-cyan-200'
+            }`}
+          >
+            <Timer className="w-3.5 h-3.5" />
+            <span>{timeLeft}s</span>
+          </div>
         </div>
       </div>
 
+      {/* Anti-Cheat Alert Banner (if triggered) */}
+      {focusAlertMessage && (
+        <div
+          className={`mb-4 p-3.5 rounded-2xl border flex items-start justify-between gap-3 text-xs sm:text-sm font-medium animate-pop-in ${
+            sessionFocusLosses >= 2
+              ? 'bg-rose-500/15 border-rose-400/50 text-rose-200'
+              : 'bg-amber-500/15 border-amber-400/50 text-amber-200'
+          }`}
+        >
+          <span>{focusAlertMessage}</span>
+          <button
+            type="button"
+            onClick={() => setFocusAlertMessage(null)}
+            className="text-xs underline opacity-80 hover:opacity-100 shrink-0 cursor-pointer"
+          >
+            Entendido
+          </button>
+        </div>
+      )}
+
       {/* Main Quiz Glass Card */}
       <div className="glass-panel rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+        {/* Live Visual Question Timer Strip at Top Edge */}
+        <div className="absolute inset-x-0 top-0 h-1 bg-slate-900">
+          <div
+            className={`h-full transition-all duration-1000 ease-linear ${
+              timeLeft <= 4
+                ? 'bg-rose-500'
+                : timeLeft <= 8
+                ? 'bg-amber-400'
+                : 'bg-cyan-400'
+            }`}
+            style={{ width: `${isAnswered ? 0 : timerPct}%` }}
+          />
+        </div>
+
+        {/* Fullscreen Lock Overlay for Final Level (Level 5) if user exits Fullscreen */}
+        {requireFullscreen && !isFullscreenActive && !isAnswered && (
+          <div className="absolute inset-0 z-30 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
+            <Maximize2 className="w-10 h-10 text-rose-400 mb-3" />
+            <h3 className="text-xl font-display font-bold text-white mb-2">
+              Modo Examen Final: Pantalla Completa Requerida
+            </h3>
+            <p className="text-sm text-slate-300 max-w-md mb-5">
+              El Nivel 5 exige mantenerse en pantalla completa para garantizar máxima integridad. ¡El reloj sigue corriendo ({timeLeft}s)!
+            </p>
+            <button
+              type="button"
+              onClick={handleRequestFullscreen}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-rose-500 to-violet-500 text-white shadow-[0_0_25px_rgba(244,63,94,0.4)] hover:opacity-95 cursor-pointer"
+            >
+              <Maximize2 className="w-4 h-4" />
+              Volver a Pantalla Completa
+            </button>
+          </div>
+        )}
+
         {/* Progress Header */}
         <div className="flex items-center justify-between gap-2 text-xs text-slate-400 mb-2.5">
           <span className="font-semibold text-cyan-300 truncate">{sessionTitle}</span>
@@ -264,10 +489,15 @@ export default function QuizView({
         </div>
 
         {/* Topic Tag */}
-        <div className="mb-3">
+        <div className="flex items-center justify-between gap-2 mb-3">
           <span className="inline-block px-2.5 py-1 rounded-lg text-[11px] font-mono-tech font-semibold bg-violet-500/15 text-violet-300 border border-violet-400/25">
             # {currentQ.tag}
           </span>
+          {requireFullscreen && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-mono-tech text-rose-300">
+              <Maximize2 className="w-3 h-3" /> Examen Final Protegido
+            </span>
+          )}
         </div>
 
         {/* Question Text */}
@@ -342,7 +572,9 @@ export default function QuizView({
         {isAnswered && (
           <div
             className={`mt-6 p-4 sm:p-5 rounded-2xl border animate-pop-in ${
-              timedOut
+              focusDisqualified
+                ? 'bg-rose-500/12 border-rose-400/40'
+                : timedOut
                 ? 'bg-amber-500/10 border-amber-400/35'
                 : selectedIdx === currentQ.correct
                 ? 'bg-emerald-500/10 border-emerald-400/30'
@@ -351,10 +583,15 @@ export default function QuizView({
           >
             <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2 font-bold text-sm">
-                {timedOut ? (
+                {focusDisqualified ? (
+                  <span className="text-rose-300 flex items-center gap-1.5">
+                    <ShieldAlert className="w-4 h-4" />
+                    Pregunta anulada por cambiar de pestaña/ventana — Repasa el concepto:
+                  </span>
+                ) : timedOut ? (
                   <span className="text-amber-300 flex items-center gap-1.5">
                     <AlertCircle className="w-4 h-4" />
-                    ¡Tiempo agotado! Revisa el concepto clave:
+                    ¡Tiempo agotado (15s)! Revisa el concepto clave:
                   </span>
                 ) : selectedIdx === currentQ.correct ? (
                   <span className="text-emerald-300 flex items-center gap-1.5">
@@ -386,7 +623,7 @@ export default function QuizView({
         <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
           <span className="text-[11px] text-slate-500 font-mono-tech hidden sm:inline">
             {!isAnswered
-              ? 'Atajo: teclas [1-4] para elegir opción'
+              ? 'Atajo: teclas [1-4] • Copiado deshabilitado'
               : 'Atajo: presiona [Enter] para continuar'}
           </span>
 

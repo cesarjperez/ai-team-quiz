@@ -14,6 +14,7 @@ export function getDefaultState() {
     bestStreak: 0,
     totalAnswered: 0,
     totalCorrect: 0,
+    totalFocusLosses: 0,
     soundEnabled: true,
     unlockedLevels: 1,
     levelsProgress: {},
@@ -145,13 +146,13 @@ export function evaluateAchievements(nextState, sessionSummary) {
     }
   };
 
-  const { passed, pct, maxSessionStreak, isTimedMode, levelId, isArena } = sessionSummary;
+  const { passed, pct, maxSessionStreak, avgTimeSec, sessionFocusLosses, levelId, isArena } = sessionSummary;
 
   if (passed && !isArena) {
     unlock('first_win');
   }
 
-  if (pct === 100) {
+  if (pct === 100 && sessionFocusLosses === 0) {
     unlock('perfect_score');
   }
 
@@ -163,7 +164,7 @@ export function evaluateAchievements(nextState, sessionSummary) {
     unlock('streak_8');
   }
 
-  if (passed && isTimedMode) {
+  if (passed && avgTimeSec <= 7 && sessionFocusLosses === 0) {
     unlock('speed_runner');
   }
 
