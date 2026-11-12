@@ -59,7 +59,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'speed_runner',
     title: 'Reflejos Neurales',
-    description: 'Supera cualquier nivel respondiendo en promedio en 7 segundos o menos y sin salir de pestaña.',
+    description: 'Supera cualquier nivel respondiendo en promedio en 10 segundos o menos y sin salir de pestaña.',
     icon: '⏱️',
     xpBonus: 180,
   },

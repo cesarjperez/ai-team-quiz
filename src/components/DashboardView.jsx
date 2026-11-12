@@ -165,7 +165,7 @@ export default function DashboardView({
             </span>
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono-tech font-semibold bg-amber-500/15 text-amber-300 border border-amber-400/30">
               <Timer className="w-3.5 h-3.5" />
-              15s obligatorios / pregunta
+              30s obligatorios / pregunta
             </span>
           </div>
           <p className="text-xs text-slate-400">
@@ -299,7 +299,7 @@ export default function DashboardView({
                       <span className="text-slate-500">Supera el Nivel {lvl.level - 1}</span>
                     ) : (
                       <span className="text-slate-400 font-mono-tech">
-                        15s/preg • {lvl.questions.length} en banco
+                        30s/preg • {lvl.questions.length} en banco
                       </span>
                     )}
                   </div>
@@ -345,13 +345,13 @@ export default function DashboardView({
                 Arena Global Mixta (10 Pregs)
               </h3>
               <p className="text-xs sm:text-sm text-slate-300/85 leading-relaxed mb-5">
-                Diagnóstico integral contrarreloj (15s/preg) combinando preguntas aleatorias de los 5 niveles para medir tu dominio global.
+                Diagnóstico integral contrarreloj (30s/preg) combinando preguntas aleatorias de los 5 niveles para medir tu dominio global.
               </p>
             </div>
 
             <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
               <span className="text-xs text-fuchsia-300 font-mono-tech font-semibold">
-                15s/preg • +Bono XP
+                30s/preg • +Bono XP
               </span>
               <button
                 type="button"

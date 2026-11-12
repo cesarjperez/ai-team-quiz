@@ -17,7 +17,7 @@ Plataforma web moderna, interactiva y gamificada construida con **React + Vite +
   - Tanto el orden de las preguntas como el de las opciones cambian automáticamente en cada partida.
 - **💡 Explicación Técnica Instantánea + Repaso Final:** Cada respuesta muestra al instante el *porqué* técnico y al terminar el nivel puedes filtrar entre **Todas** las preguntas o **Solo Errores**.
 - **🏆 Gamificación Completa + Escudo Antitrampa:**
-  - **Tiempo obligatorio de 15s por pregunta** (sin opción de pausar ni quitar el reloj).
+  - **Tiempo obligatorio de 30s por pregunta** (sin opción de pausar ni quitar el reloj).
   - **Detector de cambio de pestaña / ventana:** advierte en la 1ª salida y **anula automáticamente la pregunta activa** si vuelve a salir.
   - **Bloqueo anticopiado:** selección de texto, clic derecho y atajos `Ctrl+C` deshabilitados durante el cuestionario.
   - **Modo Pantalla Completa en Nivel 5:** el nivel final exige pantalla completa activa para responder.

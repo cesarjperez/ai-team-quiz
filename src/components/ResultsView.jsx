@@ -338,7 +338,7 @@ export default function ResultsView({
                       </>
                     ) : item.timedOut ? (
                       <>
-                        <XCircle className="w-4 h-4" /> Tiempo agotado (15s)
+                        <XCircle className="w-4 h-4" /> Tiempo agotado (30s)
                       </>
                     ) : (
                       <>

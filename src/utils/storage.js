@@ -164,7 +164,7 @@ export function evaluateAchievements(nextState, sessionSummary) {
     unlock('streak_8');
   }
 
-  if (passed && avgTimeSec <= 7 && sessionFocusLosses === 0) {
+  if (passed && avgTimeSec <= 10 && sessionFocusLosses === 0) {
     unlock('speed_runner');
   }
 

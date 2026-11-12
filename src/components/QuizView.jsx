@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { sound } from '../utils/sound';
 
-const QUESTION_TIME_LIMIT = 15;
+const QUESTION_TIME_LIMIT = 30;
 
 export default function QuizView({
   sessionTitle,
@@ -230,7 +230,7 @@ export default function QuizView({
         nextStreak = streak + 1;
         const baseXP = 100;
         const streakBonus = Math.min(nextStreak - 1, 5) * 20;
-        const speedBonus = Math.max(10, timeLeft * 4);
+        const speedBonus = Math.max(10, timeLeft * 2);
         earned = Math.round(baseXP + streakBonus + speedBonus);
 
         setStreak(nextStreak);
@@ -398,12 +398,12 @@ export default function QuizView({
             <span>+{sessionXP} XP</span>
           </div>
 
-          {/* Mandatory 15s Countdown Pill */}
+          {/* Mandatory 30s Countdown Pill */}
           <div
             className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-mono-tech font-bold transition ${
-              timeLeft <= 4
+              timeLeft <= 5
                 ? 'bg-rose-500/30 border-rose-400 text-rose-100 animate-pulse'
-                : timeLeft <= 8
+                : timeLeft <= 12
                 ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
                 : 'bg-slate-900/85 border-cyan-400/30 text-cyan-200'
             }`}
@@ -440,9 +440,9 @@ export default function QuizView({
         <div className="absolute inset-x-0 top-0 h-1 bg-slate-900">
           <div
             className={`h-full transition-all duration-1000 ease-linear ${
-              timeLeft <= 4
+              timeLeft <= 5
                 ? 'bg-rose-500'
-                : timeLeft <= 8
+                : timeLeft <= 12
                 ? 'bg-amber-400'
                 : 'bg-cyan-400'
             }`}
@@ -591,7 +591,7 @@ export default function QuizView({
                 ) : timedOut ? (
                   <span className="text-amber-300 flex items-center gap-1.5">
                     <AlertCircle className="w-4 h-4" />
-                    ¡Tiempo agotado (15s)! Revisa el concepto clave:
+                    ¡Tiempo agotado (30s)! Revisa el concepto clave:
                   </span>
                 ) : selectedIdx === currentQ.correct ? (
                   <span className="text-emerald-300 flex items-center gap-1.5">

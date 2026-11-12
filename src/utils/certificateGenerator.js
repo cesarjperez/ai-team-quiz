@@ -156,7 +156,7 @@ export function renderCredentialCanvas(canvas, state) {
   ctx.fillStyle = !hasPlayed ? '#cbd5e1' : isClean ? '#6ee7b7' : '#fcd34d';
   ctx.font = '700 13px "JetBrains Mono", monospace';
   const integrityLabel = !hasPlayed
-    ? '🛡️ MONITOREO ANTITRAMPA ACTIVO (15s/PREG)'
+    ? '🛡️ MONITOREO ANTITRAMPA ACTIVO (30s/PREG)'
     : isClean
     ? '🛡️ INTEGRIDAD VERIFICADA • 0 SALIDAS DE PESTAÑA'
     : `⚠️ ${focusLosses} SALIDA(S) DE VENTANA DETECTADA(S)`;
@@ -269,7 +269,7 @@ export function buildShareText(state) {
   const focusLosses = state.totalFocusLosses || 0;
   const integrityText =
     (state.totalAnswered || 0) === 0
-      ? '🛡️ *Integridad:* Monitoreo activo (15s/preg)'
+      ? '🛡️ *Integridad:* Monitoreo activo (30s/preg)'
       : focusLosses === 0
       ? '🛡️ *Integridad:* Verificada (0 salidas de pestaña)'
       : `⚠️ *Integridad:* ${focusLosses} salida(s) de pestaña detectada(s)`;
