@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Compass,
   Cpu,
   Network,
   Layers,
@@ -22,6 +23,7 @@ import { QUIZ_LEVELS } from '../data/quizData';
 import { getRankInfo } from '../utils/storage';
 
 const ICON_MAP = {
+  Compass,
   Cpu,
   Network,
   Layers,
@@ -63,21 +65,22 @@ export default function DashboardView({
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/25 text-cyan-300 text-xs font-mono-tech font-semibold mb-3">
               <Zap className="w-3.5 h-3.5" />
-              <span>40 RETOS TÉCNICOS • EVALUACIÓN CONTRARRELOJ PROTEGIDA</span>
+              <span>48 RETOS • NIVEL 0 (CONCEPTOS BASE) AL NIVEL 5</span>
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-display font-bold text-white leading-tight">
               {state.profile.name?.trim()
                 ? `¡Hola, ${state.profile.name.trim()}! ¿Listo para subir de nivel?`
-                : 'Domina la Arquitectura Moderna de IA en Equipo'}
+                : 'Domina la Inteligencia Artificial en Equipo desde Cero'}
             </h1>
 
             <p className="text-slate-300/90 text-sm sm:text-base mt-2.5 leading-relaxed">
-              Evalúa y fortalece tus conocimientos en <strong className="text-cyan-300 font-semibold">LLMs</strong>,{' '}
+              Avanza desde el <strong className="text-sky-300 font-semibold">Nivel 0 (Vocabulario Base)</strong> hasta{' '}
+              <strong className="text-cyan-300 font-semibold">LLMs</strong>,{' '}
               <strong className="text-violet-300 font-semibold">Protocolo MCP</strong>,{' '}
               <strong className="text-emerald-300 font-semibold">Skills Modulares</strong>,{' '}
               <strong className="text-amber-300 font-semibold">RAG Vectorial</strong> y{' '}
-              <strong className="text-rose-300 font-semibold">Agentes Autónomos</strong> con retroalimentación técnica inmediata.
+              <strong className="text-rose-300 font-semibold">Agentes Autónomos</strong> con retroalimentación inmediata.
             </p>
 
             {!state.profile.onboarded && (
@@ -131,7 +134,7 @@ export default function DashboardView({
                 {totalStars} <span className="text-xs text-slate-500">/ {maxPossibleStars}</span>
               </p>
               <p className="font-mono-tech text-[11px] text-slate-400">
-                {completedLevels}/5 niveles
+                {completedLevels}/{QUIZ_LEVELS.length} niveles
               </p>
             </div>
 
@@ -324,12 +327,12 @@ export default function DashboardView({
             );
           })}
 
-          {/* 6th Card: Global Mixed Team Arena */}
-          <div className="relative rounded-3xl p-6 flex flex-col justify-between border border-fuchsia-400/35 bg-gradient-to-br from-fuchsia-950/40 via-slate-900/80 to-indigo-950/50 hover:border-fuchsia-400/70 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-            <div className="absolute -right-10 -top-10 w-36 h-36 rounded-full bg-fuchsia-500/20 blur-2xl pointer-events-none" />
+          {/* Global Mixed Team Arena (Full-Width Banner Card below the 6-card grid) */}
+          <div className="md:col-span-2 lg:col-span-3 relative rounded-3xl p-6 sm:px-8 flex flex-col md:flex-row md:items-center justify-between gap-5 border border-fuchsia-400/35 bg-gradient-to-br from-fuchsia-950/40 via-slate-900/80 to-indigo-950/50 hover:border-fuchsia-400/70 transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
+            <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-fuchsia-500/20 blur-2xl pointer-events-none" />
 
-            <div className="relative z-10">
-              <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="relative z-10 max-w-2xl">
+              <div className="flex items-center gap-3 mb-2.5">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono-tech font-semibold bg-fuchsia-500/20 text-fuchsia-200 border border-fuchsia-400/40">
                   <Swords className="w-3.5 h-3.5" />
                   Modo Especial
@@ -341,25 +344,25 @@ export default function DashboardView({
                 )}
               </div>
 
-              <h3 className="text-lg font-display font-bold text-white mb-2">
-                Arena Global Mixta (10 Pregs)
+              <h3 className="text-lg sm:text-xl font-display font-bold text-white mb-1.5">
+                Arena Global Mixta (10 Preguntas • Nivel 0 al 5)
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300/85 leading-relaxed mb-5">
-                Diagnóstico integral contrarreloj (30s/preg) combinando preguntas aleatorias de los 5 niveles para medir tu dominio global.
+              <p className="text-xs sm:text-sm text-slate-300/85 leading-relaxed">
+                Diagnóstico integral contrarreloj (30s/preg) combinando preguntas aleatorias desde Conceptos Base hasta Agentes Autónomos.
               </p>
             </div>
 
-            <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
+            <div className="relative z-10 flex items-center justify-between md:justify-end gap-4 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-white/10">
               <span className="text-xs text-fuchsia-300 font-mono-tech font-semibold">
                 30s/preg • +Bono XP
               </span>
               <button
                 type="button"
                 onClick={onStartArena}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-fuchsia-400 to-violet-500 text-slate-950 hover:opacity-95 shadow-[0_0_22px_rgba(232,121,249,0.35)] transition cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-fuchsia-400 to-violet-500 text-slate-950 hover:opacity-95 shadow-[0_0_22px_rgba(232,121,249,0.35)] transition cursor-pointer"
               >
-                <Swords className="w-3.5 h-3.5" />
-                Reto Mixto
+                <Swords className="w-4 h-4" />
+                Jugar Reto Mixto
               </button>
             </div>
           </div>

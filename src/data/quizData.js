@@ -87,7 +87,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'all_levels',
     title: 'Graduado Full-Stack IA',
-    description: 'Supera los 5 niveles fundamentales del programa.',
+    description: 'Supera los 6 niveles del programa (del Nivel 0 al Nivel 5).',
     icon: '🏆',
     xpBonus: 350,
   },
@@ -102,11 +102,137 @@ export const ACHIEVEMENTS = [
 
 export const QUIZ_LEVELS = [
   {
+    level: 0,
+    id: 'level-0',
+    shortTitle: 'Conceptos Base',
+    title: 'Nivel 0: Conceptos Base y Vocabulario IA',
+    description: 'Punto de partida ideal: qué es un LLM, un prompt, un token, la ventana de contexto, un MCP, una skill, RAG y un agente.',
+    icon: 'Compass',
+    accent: 'sky',
+    gradient: 'from-sky-500/20 via-indigo-500/10 to-transparent',
+    borderGlow: 'hover:border-sky-400/60',
+    badgeBg: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+    questions: [
+      {
+        id: 'l0-q1',
+        tag: '¿Qué es un LLM?',
+        question: '¿Qué es un LLM (Large Language Model o Modelo de Lenguaje Grande)?',
+        options: [
+          'Un sistema de inteligencia artificial entrenado con enormes volúmenes de texto capaz de comprender instrucciones y generar lenguaje o código.',
+          'Una base de datos tradicional de tablas como Excel o MySQL.',
+          'Un antivirus diseñado para acelerar el navegador web.',
+          'Un lenguaje de programación exclusivo para fabricar microchips.',
+        ],
+        correct: 0,
+        explanation:
+          'Ejemplos de LLMs son Gemini, Claude o GPT. Funcionan identificando patrones estadísticos y semánticos del lenguaje para redactar, resumir, traducir, razonar y programar.',
+      },
+      {
+        id: 'l0-q2',
+        tag: '¿Qué es un Prompt?',
+        question: "¿Qué es un 'Prompt' cuando interactúas con una Inteligencia Artificial?",
+        options: [
+          'La instrucción, pregunta o contexto de entrada que le damos a la IA para indicarle qué tarea debe realizar.',
+          'El recibo de pago mensual de la suscripción de software.',
+          'Un error de conexión cuando falla el Wi-Fi de la oficina.',
+          'El ventilador físico que enfría la tarjeta gráfica.',
+        ],
+        correct: 0,
+        explanation:
+          'Un buen prompt explica qué necesitas, con qué contexto y en qué formato esperas la respuesta. Es la forma principal de comunicarnos con un modelo generativo.',
+      },
+      {
+        id: 'l0-q3',
+        tag: '¿Qué es un Token?',
+        question: "En términos sencillos, ¿qué es un 'Token' dentro de un modelo de IA?",
+        options: [
+          'Cada una de las pequeñas piezas de texto (sílabas, palabras o signos) en las que la IA divide las frases para leerlas y escribirlas.',
+          'Una moneda física coleccionable que regalan las empresas de tecnología.',
+          'Únicamente los archivos de video que pesan más de 1 GB.',
+          'El nombre de usuario del administrador de sistemas.',
+        ],
+        correct: 0,
+        explanation:
+          'Las IAs no leen letra por letra ni siempre palabra completa: parten el texto en bloques llamados tokens. Tanto la memoria del chat como el costo de uso se miden en tokens.',
+      },
+      {
+        id: 'l0-q4',
+        tag: 'Ventana de Contexto',
+        question: "¿Qué es la 'Ventana de Contexto' (Context Window) de una IA?",
+        options: [
+          'La memoria de corto plazo del modelo: cuánta información (mensajes y archivos) puede recordar y analizar al mismo tiempo en una conversación.',
+          'El tamaño en pulgadas del monitor donde abres el chat.',
+          'Una ventana emergente de publicidad en el navegador.',
+          'El horario de oficina en el que responde el soporte técnico.',
+        ],
+        correct: 0,
+        explanation:
+          'Piensa en la ventana de contexto como la mesa de trabajo de la IA: todo lo que cabe sobre la mesa (tu pregunta, el historial y documentos adjuntos) puede ser leído a la vez.',
+      },
+      {
+        id: 'l0-q5',
+        tag: '¿Qué es un MCP?',
+        question: '¿Qué es un MCP (Model Context Protocol) explicado de forma sencilla?',
+        options: [
+          'Un conector universal (como un puerto USB-C para la IA) que le permite conectarse de forma estándar a herramientas como Slack, bases de datos, Drive o GitHub.',
+          'Un programa para editar fotografías en blanco y negro.',
+          'La marca de un procesador exclusivo para teléfonos móviles.',
+          'Un formato de compresión de audio similar al MP3.',
+        ],
+        correct: 0,
+        explanation:
+          'Sin MCP habría que programar integraciones distintas para cada herramienta. Con MCP, la IA puede consultar datos reales o ejecutar acciones autorizadas de manera estándar.',
+      },
+      {
+        id: 'l0-q6',
+        tag: '¿Qué es una Skill?',
+        question: "¿Qué es una 'Skill' (Habilidad) en herramientas y agentes de IA?",
+        options: [
+          'Un manual o receta reutilizable con instrucciones paso a paso para que la IA ejecute una tarea repetitiva siempre con el estándar del equipo.',
+          'Un videojuego instalado oculto dentro del navegador.',
+          'El nivel de brillo de la pantalla de la computadora.',
+          'Un cable de red de alta velocidad.',
+        ],
+        correct: 0,
+        explanation:
+          'En lugar de explicarle desde cero cada día cómo hacer un reporte o revisar código, guardas ese conocimiento en una Skill y el asistente la aplica cuando hace falta.',
+      },
+      {
+        id: 'l0-q7',
+        tag: '¿Qué es RAG?',
+        question: '¿Qué significa usar RAG (Generación Aumentada por Recuperación) en una empresa?',
+        options: [
+          'Hacer que la IA busque primero en los documentos propios de la empresa antes de responder, evitando inventar datos.',
+          'Borrar toda la información antigua del servidor cada noche.',
+          'Cambiar el idioma de la computadora a inglés automáticamente.',
+          'Aumentar el volumen de los altavoces durante una videollamada.',
+        ],
+        correct: 0,
+        explanation:
+          'Un LLM general no conoce tus manuales internos privados. Con RAG, el sistema busca los párrafos relevantes en tus archivos y se los entrega a la IA como respaldo real.',
+      },
+      {
+        id: 'l0-q8',
+        tag: '¿Qué es un Agente?',
+        question: "En términos simples, ¿qué diferencia a un 'Agente de IA' de un chat básico?",
+        options: [
+          'Un chat básico solo responde con texto; un Agente puede planificar pasos y usar herramientas (buscar, leer archivos, ejecutar tareas) para lograr un objetivo.',
+          'Un Agente de IA es una persona física respondiendo detrás del teclado.',
+          'El chat básico funciona con internet y el Agente solo funciona apagado.',
+          'No tienen ninguna diferencia, solo cambia el logotipo.',
+        ],
+        correct: 0,
+        explanation:
+          'Mientras un chatbot tradicional contesta una pregunta y espera, un Agente de IA puede dividir un problema en pasos, consultar sistemas, verificar si algo falló y completar el trabajo.',
+      },
+    ],
+  },
+  {
     level: 1,
     id: 'level-1',
     shortTitle: 'Fundamentos LLM',
     title: 'Nivel 1: Fundamentos y Arquitectura',
-    description: 'Modelos de lenguaje, tokenización, ventanas de contexto, parámetros de muestreo y prompting estructurado.',
+    description: 'Comportamiento técnico de tokens, límites de contexto, parámetros de muestreo, system prompts y salidas estructuradas.',
     icon: 'Cpu',
     accent: 'cyan',
     gradient: 'from-cyan-500/20 via-sky-500/10 to-transparent',
@@ -115,31 +241,31 @@ export const QUIZ_LEVELS = [
     questions: [
       {
         id: 'l1-q1',
-        tag: 'Tokenización',
-        question: "¿Cuál es la definición técnica de un 'token' en un modelo de lenguaje grande (LLM)?",
+        tag: 'Tokenización Técnica',
+        question: '¿Cómo influye el proceso de tokenización en el costo y consumo al procesar distintos textos o código?',
         options: [
-          'Una palabra completa en inglés o español exclusivamente.',
-          'Un fragmento de palabra, palabra completa o signo de puntuación procesado como unidad básica.',
-          'Una clave criptográfica de seguridad para autenticar la API del modelo.',
-          'El costo monetario por cada mil consultas realizadas.',
+          'Una misma palabra siempre equivale exactamente a 1 token sin importar el idioma ni la longitud.',
+          'Palabras poco comunes, código con mucha indentación o idiomas con acentos suelen dividirse en más sub-tokens, consumiendo más presupuesto y contexto.',
+          'Los números y signos de puntuación no consumen tokens en ningún modelo.',
+          'El tokenizador solo cuenta las mayúsculas y descarta las minúsculas.',
         ],
         correct: 1,
         explanation:
-          'Los LLMs dividen el texto mediante tokenizadores (como BPE o SentencePiece) en sub-palabras, palabras frecuentes, números o signos. En promedio, 1 token equivale a ~3–4 caracteres en español.',
+          'Los tokenizadores (como BPE) asignan 1 token a secuencias frecuentes en su entrenamiento (a menudo inglés), mientras palabras compuestas, JSON verboso o español suelen requerir más fragmentos por oración.',
       },
       {
         id: 'l1-q2',
-        tag: 'Context Window',
-        question: "¿Qué representa la 'ventana de contexto' (context window) de una IA?",
+        tag: 'Límites de Contexto',
+        question: '¿Qué ocurre técnicamente cuando la suma de mensajes, archivos e instrucciones supera la ventana de contexto o la satura en exceso?',
         options: [
-          'El tiempo de respuesta en milisegundos desde que envías el prompt.',
-          'El límite máximo de tokens que el modelo puede retener y procesar simultáneamente.',
-          'La interfaz gráfica del chat donde escribes las instrucciones.',
-          'El historial de conversaciones guardadas en el navegador del usuario.',
+          'El modelo amplía automáticamente la memoria RAM física de tu computadora.',
+          'La API rechaza la petición o trunca mensajes antiguos, y además el exceso de ruido intermedio puede degradar la atención del modelo (context rot).',
+          'La respuesta se vuelve 100% inmune a cualquier error.',
+          'El historial se guarda gratuitamente dentro de los pesos permanentes del modelo.',
         ],
         correct: 1,
         explanation:
-          'La ventana de contexto abarca tanto los tokens de entrada (system prompt, historial, archivos adjuntos) como los tokens generados en la respuesta. Si se excede, la información antigua se trunca o falla la petición.',
+          'La ventana de contexto suma entrada + salida. Incluso en ventanas grandes (128k–1M tokens), meter información irrelevante encarece cada turno y diluye la precisión sobre los detalles importantes.',
       },
       {
         id: 'l1-q3',

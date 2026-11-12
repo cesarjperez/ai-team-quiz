@@ -7,8 +7,9 @@ Plataforma web moderna, interactiva y gamificada construida con **React + Vite +
 ## ✨ Novedades y Características Principales
 
 - **🎨 Diseño Futurista / AI Glassmorphism:** Interfaz oscura de alto contraste con paneles translúcidos, resplandores aurora dinámicos, micro-animaciones y soporte de atajos de teclado (`1–4` para responder y `Enter` para avanzar).
-- **🧠 Banco Ampliado (40 Preguntas Curadas + Aleatorización):**
-  - **Nivel 1:** Fundamentos y Arquitectura LLM (Tokens, Context Window, Sampling, System Prompts, Structured Outputs, Latencia/Costos).
+- **🧠 Banco Ampliado (48 Preguntas Curadas, Nivel 0 al 5 + Aleatorización):**
+  - **Nivel 0:** Conceptos Base y Vocabulario IA (¿Qué es un LLM, un Prompt, un Token, la Ventana de Contexto, un MCP, una Skill, RAG y un Agente?).
+  - **Nivel 1:** Fundamentos y Arquitectura LLM (Tokenización técnica, Context Window, Sampling, System Prompts, Structured Outputs, Latencia/Costos).
   - **Nivel 2:** Conectividad y Protocolos (MCP — Host/Client/Server, Resources vs Tools, Transportes `stdio`/HTTP, Seguridad Human-in-the-Loop).
   - **Nivel 3:** Skills y Automatización Modular (`SKILL.md`, Progressive Disclosure, Reglas vs Skills, Scripts deterministas).
   - **Nivel 4:** RAG, Fine-Tuning y Recuperación (Embeddings, Vector DBs, Búsqueda Híbrida BM25 + Vectorial, Reranking, Chunk Overlap).

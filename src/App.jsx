@@ -127,7 +127,7 @@ export default function App() {
       isArena: true,
       levelIndex: null,
       levelId: 'arena-global',
-      title: 'Arena Global Mixta • 5 Dominios IA',
+      title: 'Arena Global Mixta • Niveles 0 al 5',
       requireFullscreen: false,
       questions: preparedQuestions,
     });
@@ -167,7 +167,7 @@ export default function App() {
         activeSession.levelIndex + 1 < QUIZ_LEVELS.length
       ) {
         nextUnlockedLevels = activeSession.levelIndex + 2;
-        newlyUnlockedLevelNumber = nextUnlockedLevels;
+        newlyUnlockedLevelNumber = QUIZ_LEVELS[nextUnlockedLevels - 1]?.level ?? null;
       }
 
       const prevLevelProg = prev.levelsProgress[activeSession.levelId] || {

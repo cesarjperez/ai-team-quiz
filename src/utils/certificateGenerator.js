@@ -177,7 +177,7 @@ export function renderCredentialCanvas(canvas, state) {
     { label: 'MEJOR RACHA', value: `${state.bestStreak} 🔥`, color: '#fbbf24' },
     {
       label: 'INSIGNIAS / NIVELES',
-      value: `${state.unlockedAchievements.length}/10 • ${clearedCount}/5`,
+      value: `${state.unlockedAchievements.length}/10 • ${clearedCount}/${QUIZ_LEVELS.length}`,
       color: '#c084fc',
     },
   ];
@@ -203,13 +203,15 @@ export function renderCredentialCanvas(canvas, state) {
     ctx.fillText(kpi.value, bx + 20, by + 78);
   });
 
-  // Dominio por Nivel (5 módulos)
+  // Dominio por Nivel (6 módulos: Nivel 0 al Nivel 5)
   ctx.fillStyle = '#cbd5e1';
   ctx.font = '700 15px "JetBrains Mono", monospace';
-  ctx.fillText('DOMINIO POR MÓDULO TÉCNICO', 88, 462);
+  ctx.fillText('DOMINIO POR MÓDULO TÉCNICO (NIVEL 0 AL 5)', 88, 462);
 
-  const modW = 192;
-  const modGap = 16;
+  const totalInnerW = W - 88 * 2;
+  const modGap = 12;
+  const modW = Math.floor((totalInnerW - modGap * (QUIZ_LEVELS.length - 1)) / QUIZ_LEVELS.length);
+
   QUIZ_LEVELS.forEach((lvl, idx) => {
     const mx = 88 + idx * (modW + modGap);
     const my = 480;
@@ -226,23 +228,23 @@ export function renderCredentialCanvas(canvas, state) {
     ctx.stroke();
 
     ctx.fillStyle = completed ? '#e2e8f0' : '#94a3b8';
-    ctx.font = '700 14px "Plus Jakarta Sans", sans-serif';
-    ctx.fillText(`N${lvl.level} • ${lvl.shortTitle}`, mx + 14, my + 28);
+    ctx.font = '700 12.5px "Plus Jakarta Sans", sans-serif';
+    ctx.fillText(`N${lvl.level} • ${lvl.shortTitle}`, mx + 12, my + 28);
 
     const starStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
     ctx.fillStyle = stars > 0 ? '#fbbf24' : '#475569';
-    ctx.font = '18px sans-serif';
-    ctx.fillText(starStr, mx + 14, my + 56);
+    ctx.font = '17px sans-serif';
+    ctx.fillText(starStr, mx + 12, my + 56);
 
     ctx.fillStyle = completed ? '#34d399' : '#64748b';
-    ctx.font = '600 13px "JetBrains Mono", monospace';
-    ctx.fillText(completed ? `Mejor: ${bestPct}%` : 'Pendiente', mx + 14, my + 78);
+    ctx.font = '600 12px "JetBrains Mono", monospace';
+    ctx.fillText(completed ? `Mejor: ${bestPct}%` : 'Pendiente', mx + 12, my + 78);
   });
 
   // Pie de tarjeta
   ctx.fillStyle = '#64748b';
-  ctx.font = '500 14px "JetBrains Mono", monospace';
-  ctx.fillText('Fundamentos LLM  •  MCP  •  Skills  •  RAG & Vectores  •  Agentes Autónomos', 88, 608);
+  ctx.font = '500 13.5px "JetBrains Mono", monospace';
+  ctx.fillText('Conceptos Base  •  LLMs  •  MCP  •  Skills  •  RAG & Vectores  •  Agentes', 88, 608);
 
   ctx.textAlign = 'right';
   ctx.fillStyle = '#38bdf8';
@@ -280,7 +282,7 @@ export function buildShareText(state) {
     `${rankInfo.current.badge} *Rango:* ${rankInfo.current.title} — *${state.xp.toLocaleString()} XP*`,
     `🎯 *Precisión:* ${accuracy}%  |  🔥 *Mejor Racha:* ${state.bestStreak}  |  🏅 *Medallas:* ${state.unlockedAchievements.length}/10`,
     integrityText,
-    `📊 *Módulos (${clearedCount}/5):* ${levelBadges}`,
+    `📊 *Módulos (${clearedCount}/${QUIZ_LEVELS.length}):* ${levelBadges}`,
     `🔗 ¡Pon a prueba tus conocimientos con el equipo!`,
   ].join('\n');
 }

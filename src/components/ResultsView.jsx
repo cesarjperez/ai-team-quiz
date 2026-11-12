@@ -158,7 +158,7 @@ export default function ResultsView({
           </div>
 
           {/* Unlocked Next Level Banner */}
-          {newlyUnlockedLevelNumber && (
+          {newlyUnlockedLevelNumber !== null && newlyUnlockedLevelNumber !== undefined && (
             <div className="max-w-md mx-auto mb-6 px-4 py-3 rounded-2xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 text-sm font-semibold flex items-center justify-center gap-2 animate-pop-in">
               <Unlock className="w-4 h-4 text-emerald-300 shrink-0" />
               <span>¡Nivel {newlyUnlockedLevelNumber} desbloqueado en tu mapa!</span>

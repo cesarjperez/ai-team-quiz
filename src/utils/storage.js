@@ -17,6 +17,7 @@ export function getDefaultState() {
     totalFocusLosses: 0,
     soundEnabled: true,
     unlockedLevels: 1,
+    hasLevelZeroMigrated: true,
     levelsProgress: {},
     arenaProgress: {
       completed: false,
@@ -34,9 +35,16 @@ export function loadState() {
     if (!raw) return getDefaultState();
     const parsed = JSON.parse(raw);
     const defaults = getDefaultState();
+    let migratedUnlocked = parsed.unlockedLevels || 1;
+    if (!parsed.hasLevelZeroMigrated && parsed.levelsProgress?.['level-1']) {
+      migratedUnlocked = Math.min(QUIZ_LEVELS.length, migratedUnlocked + 1);
+    }
+
     return {
       ...defaults,
       ...parsed,
+      unlockedLevels: migratedUnlocked,
+      hasLevelZeroMigrated: true,
       profile: { ...defaults.profile, ...(parsed.profile || {}) },
       levelsProgress: { ...(parsed.levelsProgress || {}) },
       arenaProgress: { ...defaults.arenaProgress, ...(parsed.arenaProgress || {}) },
